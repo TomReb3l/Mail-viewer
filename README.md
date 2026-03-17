@@ -1,20 +1,21 @@
-# Mail Viewer (.MSG / .EML) with Basic Security Check  
-# Προβολέας Email (.MSG / .EML) με Βασικό Έλεγχο Ασφάλειας
+# Mail Viewer (.MSG / .EML) with Basic Security Check & Language Switch  
+# Προβολέας Email (.MSG / .EML) με Βασικό Έλεγχο Ασφάλειας & Εναλλαγή Γλώσσας
 
 ---
 
 ## English
 
 ### Overview
-This project is a simple desktop application built with Python and Tkinter for viewing email files in **`.msg`** and **`.eml`** format.
+This project is a desktop application built with Python and Tkinter for viewing email files in **`.msg`** and **`.eml`** format.
 
 It is designed to:
 - open and preview email files
 - display core fields such as subject, sender, recipient, date, and body
 - inspect attachments
 - perform a **basic security check** for suspicious indicators
+- switch the user interface between **English** and **Greek**
 
-This tool is useful for quick manual review of email samples, especially in environments where emails are often exchanged in **Greek** but English compatibility is also required.
+This tool is useful for quick manual review of email samples, especially in environments where messages may arrive in Greek, English, or both.
 
 ---
 
@@ -36,6 +37,9 @@ This tool is useful for quick manual review of email samples, especially in envi
   - phishing-related keywords
   - possible sender spoofing indicators
 - Optional **Windows Defender** scan for extracted attachments when running on Windows
+- Built-in **language switch**:
+  - Greek
+  - English
 
 ---
 
@@ -44,7 +48,7 @@ Currently supported:
 - `.msg`
 - `.eml`
 
-Planned / possible future support:
+Possible future support:
 - `.emlx`
 - `.mbox`
 - `.pst`
@@ -72,7 +76,7 @@ pip install pyinstaller
 ### Run on macOS
 
 ```bash
-python3 mail_viewer_msg_eml_security.py
+python3 mail_viewer_msg_eml_security_langswitch.py
 ```
 
 ---
@@ -80,7 +84,7 @@ python3 mail_viewer_msg_eml_security.py
 ### Run on Windows
 
 ```bash
-python mail_viewer_msg_eml_security.py
+python mail_viewer_msg_eml_security_langswitch.py
 ```
 
 ---
@@ -88,7 +92,7 @@ python mail_viewer_msg_eml_security.py
 ### Build Windows EXE
 
 ```bash
-pyinstaller --onefile --windowed --icon=msg_viewer_icon.ico mail_viewer_msg_eml_security.py
+pyinstaller --onefile --windowed --icon=msg_viewer_icon.ico mail_viewer_msg_eml_security_langswitch.py
 ```
 
 The executable will be created inside the `dist` folder.
@@ -115,6 +119,22 @@ It is best used as a **first-pass review tool**.
 
 ---
 
+### Language Switch
+The application includes a built-in language selector that allows the interface to switch between:
+
+- **English**
+- **Greek / Ελληνικά**
+
+The following elements update dynamically:
+- buttons
+- labels
+- tabs
+- status messages
+- risk levels
+- alert messages
+
+---
+
 ### macOS vs Windows
 Development can be done on macOS, but final `.exe` packaging must be done on **Windows**.
 
@@ -129,7 +149,7 @@ Notes:
 Example files:
 
 ```text
-mail_viewer_msg_eml_security.py
+mail_viewer_msg_eml_security_langswitch.py
 msg_viewer_icon.ico
 README.md
 ```
@@ -156,15 +176,16 @@ You can choose your preferred license for the repository, for example:
 ## Ελληνικά
 
 ### Περιγραφή
-Αυτό το project είναι μια απλή desktop εφαρμογή σε Python και Tkinter για προβολή email αρχείων τύπου **`.msg`** και **`.eml`**.
+Αυτό το project είναι μια desktop εφαρμογή σε Python και Tkinter για προβολή email αρχείων τύπου **`.msg`** και **`.eml`**.
 
 Σκοπός του είναι να:
 - ανοίγει και να εμφανίζει email αρχεία
 - δείχνει βασικά πεδία όπως θέμα, αποστολέα, παραλήπτη, ημερομηνία και σώμα μηνύματος
 - εμφανίζει συνημμένα
 - εκτελεί έναν **βασικό έλεγχο ασφάλειας** για ύποπτες ενδείξεις
+- αλλάζει τη γλώσσα του περιβάλλοντος μεταξύ **Ελληνικών** και **Αγγλικών**
 
-Είναι χρήσιμο για γρήγορο χειροκίνητο έλεγχο email δειγμάτων, ειδικά σε περιβάλλοντα όπου μεγάλο μέρος των μηνυμάτων είναι στα **Ελληνικά**, αλλά χρειάζεται και συμβατότητα στα Αγγλικά.
+Είναι χρήσιμο για γρήγορο χειροκίνητο έλεγχο email δειγμάτων, ειδικά σε περιβάλλοντα όπου τα μηνύματα μπορεί να είναι στα Ελληνικά, στα Αγγλικά ή και στα δύο.
 
 ---
 
@@ -186,6 +207,9 @@ You can choose your preferred license for the repository, for example:
   - λέξεις-κλειδιά phishing
   - πιθανές ενδείξεις spoofing αποστολέα
 - Προαιρετικό **Windows Defender** scan στα εξαγόμενα συνημμένα όταν το πρόγραμμα τρέχει σε Windows
+- Ενσωματωμένη **εναλλαγή γλώσσας**:
+  - Ελληνικά
+  - Αγγλικά
 
 ---
 
@@ -222,7 +246,7 @@ pip install pyinstaller
 ### Εκτέλεση σε macOS
 
 ```bash
-python3 mail_viewer_msg_eml_security.py
+python3 mail_viewer_msg_eml_security_langswitch.py
 ```
 
 ---
@@ -230,7 +254,7 @@ python3 mail_viewer_msg_eml_security.py
 ### Εκτέλεση σε Windows
 
 ```bash
-python mail_viewer_msg_eml_security.py
+python mail_viewer_msg_eml_security_langswitch.py
 ```
 
 ---
@@ -238,7 +262,7 @@ python mail_viewer_msg_eml_security.py
 ### Δημιουργία Windows EXE
 
 ```bash
-pyinstaller --onefile --windowed --icon=msg_viewer_icon.ico mail_viewer_msg_eml_security.py
+pyinstaller --onefile --windowed --icon=msg_viewer_icon.ico mail_viewer_msg_eml_security_langswitch.py
 ```
 
 Το εκτελέσιμο θα δημιουργηθεί μέσα στον φάκελο `dist`.
@@ -265,6 +289,22 @@ pyinstaller --onefile --windowed --icon=msg_viewer_icon.ico mail_viewer_msg_eml_
 
 ---
 
+### Εναλλαγή Γλώσσας
+Η εφαρμογή περιλαμβάνει ενσωματωμένο επιλογέα γλώσσας που επιτρέπει την αλλαγή του περιβάλλοντος μεταξύ:
+
+- **Ελληνικών**
+- **Αγγλικών / English**
+
+Τα παρακάτω στοιχεία αλλάζουν δυναμικά:
+- κουμπιά
+- labels
+- tabs
+- status messages
+- επίπεδα ρίσκου
+- alert messages
+
+---
+
 ### macOS vs Windows
 Η ανάπτυξη μπορεί να γίνει σε macOS, αλλά το τελικό build σε `.exe` πρέπει να γίνει σε **Windows**.
 
@@ -279,7 +319,7 @@ pyinstaller --onefile --windowed --icon=msg_viewer_icon.ico mail_viewer_msg_eml_
 Ενδεικτικά αρχεία:
 
 ```text
-mail_viewer_msg_eml_security.py
+mail_viewer_msg_eml_security_langswitch.py
 msg_viewer_icon.ico
 README.md
 ```
