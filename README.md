@@ -71,34 +71,3 @@ Simple, fast and lightweight tool for opening and viewing email files (`.msg`, `
 4. View the content and security check
 5. Click **Export PDF** to save as PDF
 6. Click **Print** to print the selected email
-
----
-
-## 📦 Download / Λήψη
-
-Από το GitHub Releases:
-
-- `MailViewer.exe` → portable έκδοση
-
----
-
-## 🛠 Requirements / Απαιτήσεις για run από source
-
-```bash
-pip install -r requirements.txt
-python app.py
-```
-
----
-
-## 🧱 Build EXE
-
-```bat
-build_exe.bat
-```
-
-Το τελικό αρχείο δημιουργείται στο:
-
-```text
-dist\MailViewer.exe
-```
