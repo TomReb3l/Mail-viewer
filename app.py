@@ -5,6 +5,7 @@ import sys
 import html
 import tempfile
 import subprocess
+import hashlib
 import shutil
 from typing import Any
 from datetime import datetime
@@ -84,6 +85,14 @@ TEXTS = {
         "clear": "Καθαρισμός",
         "export_pdf": "Export PDF",
         "print_email": "Εκτύπωση",
+        "open_attachments": "Άνοιγμα συνημμένων",
+        "attachment_open_error_title": "Σφάλμα ανοίγματος",
+        "attachment_missing_msg": "Το συνημμένο δεν βρέθηκε στο προσωρινό φάκελο.",
+        "attachment_none_extractable": "Δεν υπάρχουν διαθέσιμα συνημμένα για άνοιγμα.",
+        "attachment_suspicious_title": "Προσοχή",
+        "attachment_suspicious_msg": "Το αρχείο έχει ύποπτη κατάληξη: {ext}\n\nΆνοιξέ το μόνο αν εμπιστεύεσαι την προέλευση. Θέλεις να συνεχίσεις;",
+        "attachment_folder_opened": "Άνοιξε ο φάκελος συνημμένων.",
+        "attachment_file_opened": "Άνοιξε το συνημμένο: {name}",
         "no_message_title": "Δεν υπάρχει επιλεγμένο μήνυμα",
         "no_message_msg": "Επίλεξε πρώτα ένα email από τη λίστα.",
         "save_pdf_title": "Αποθήκευση PDF",
@@ -172,6 +181,14 @@ TEXTS = {
         "clear": "Clear",
         "export_pdf": "Export PDF",
         "print_email": "Print",
+        "open_attachments": "Open attachments",
+        "attachment_open_error_title": "Open error",
+        "attachment_missing_msg": "The attachment was not found in the temporary folder.",
+        "attachment_none_extractable": "No extractable attachments are available to open.",
+        "attachment_suspicious_title": "Warning",
+        "attachment_suspicious_msg": "This file has a suspicious extension: {ext}\n\nOpen it only if you trust the source. Do you want to continue?",
+        "attachment_folder_opened": "Attachments folder opened.",
+        "attachment_file_opened": "Opened attachment: {name}",
         "no_message_title": "No message selected",
         "no_message_msg": "Select an email from the list first.",
         "save_pdf_title": "Save PDF",
@@ -263,6 +280,7 @@ class MailViewerApp(ctk.CTk):
         self.current_lang = "el"
         self.messages = []
         self.current_index = None
+        self.attachments_temp_dir = tempfile.mkdtemp(prefix="mailviewer_attachments_")
 
         self.title(TEXTS[self.current_lang]["title"])
         self.geometry("1400x860")
@@ -276,6 +294,7 @@ class MailViewerApp(ctk.CTk):
 
         self._build_ui()
         self.apply_language(refresh_current=False)
+        self.protocol("WM_DELETE_WINDOW", self.on_close)
 
     def t(self, key, **kwargs):
         text = TEXTS[self.current_lang][key]
@@ -361,6 +380,13 @@ class MailViewerApp(ctk.CTk):
             command=self.print_current_message
         )
         self.btn_print.pack(side="left", padx=(0, 8), pady=10)
+
+        self.btn_open_attachments = ctk.CTkButton(
+            self.top_card, height=38, corner_radius=10,
+            fg_color=THEME["panel_alt"], hover_color=THEME["accent_hover"], text_color=THEME["text"],
+            command=self.open_current_attachments
+        )
+        self.btn_open_attachments.pack(side="left", padx=(0, 8), pady=10)
 
         self.top_info_label = self._label(self.top_card, soft=True)
         self.top_info_label.pack(side="left", padx=(14, 0), pady=10)
@@ -608,6 +634,7 @@ class MailViewerApp(ctk.CTk):
         self.btn_clear.configure(text=self.t("clear"))
         self.btn_export_pdf.configure(text=self.t("export_pdf"))
         self.btn_print.configure(text=self.t("print_email"))
+        self.btn_open_attachments.configure(text=self.t("open_attachments"))
         self.lang_label.configure(text=f"{self.t('language')}:")
         self.top_info_label.configure(text=self.t("hint") if not self.messages else self.t("total_loaded", count=len(self.messages)))
         self.files_label.configure(text=self.t("files"))
@@ -721,7 +748,7 @@ class MailViewerApp(ctk.CTk):
             "to": self._safe_text(msg.to),
             "date": self._format_date(msg.date),
             "body": self._extract_msg_body(msg),
-            "attachments": self._extract_msg_attachments_info(msg),
+            "attachments": self._extract_msg_attachments_info(msg, path),
         }
 
     def _read_eml(self, path):
@@ -735,7 +762,7 @@ class MailViewerApp(ctk.CTk):
             "to": self._safe_text(eml.get("to", "")),
             "date": self._format_date(self._parse_email_date(eml.get("date", ""))),
             "body": self._extract_eml_body(eml),
-            "attachments": self._extract_eml_attachments_info(eml),
+            "attachments": self._extract_eml_attachments_info(eml, path),
         }
 
     def _extract_msg_body(self, msg):
@@ -816,7 +843,7 @@ class MailViewerApp(ctk.CTk):
 
         return self.t("no_content")
 
-    def _extract_msg_attachments_info(self, msg):
+    def _extract_msg_attachments_info(self, msg, mail_path):
         results = []
         for att in getattr(msg, "attachments", []) or []:
             name = (
@@ -826,11 +853,13 @@ class MailViewerApp(ctk.CTk):
             )
             ext = os.path.splitext(name)[1].lower()
             data = getattr(att, "data", None)
-            size_text = f"{len(data)} bytes" if isinstance(data, (bytes, bytearray)) else "-"
-            results.append({"name": name, "ext": ext, "size": size_text, "data": data if isinstance(data, (bytes, bytearray)) else None})
+            data = data if isinstance(data, (bytes, bytearray)) else None
+            saved_path = self._save_attachment_data(mail_path, name, data, len(results) + 1) if data else ""
+            size_text = f"{len(data)} bytes" if data else "-"
+            results.append({"name": name, "ext": ext, "size": size_text, "data": data, "path": saved_path})
         return results
 
-    def _extract_eml_attachments_info(self, eml):
+    def _extract_eml_attachments_info(self, eml, mail_path):
         results = []
         for part in eml.iter_attachments():
             name = self._safe_text(part.get_filename()) or self.t("no_name")
@@ -839,9 +868,83 @@ class MailViewerApp(ctk.CTk):
                 raw = part.get_payload(decode=True)
             except Exception:
                 raw = None
-            size_text = f"{len(raw)} bytes" if isinstance(raw, (bytes, bytearray)) else "-"
-            results.append({"name": name, "ext": ext, "size": size_text, "data": raw if isinstance(raw, (bytes, bytearray)) else None})
+            raw = raw if isinstance(raw, (bytes, bytearray)) else None
+            saved_path = self._save_attachment_data(mail_path, name, raw, len(results) + 1) if raw else ""
+            size_text = f"{len(raw)} bytes" if raw else "-"
+            results.append({"name": name, "ext": ext, "size": size_text, "data": raw, "path": saved_path})
         return results
+
+    def _attachment_dir_for_message(self, mail_path):
+        source_name = self._safe_filename(os.path.splitext(os.path.basename(mail_path))[0] or "email")
+        digest = hashlib.sha1(os.path.abspath(mail_path).encode("utf-8", errors="ignore")).hexdigest()[:10]
+        folder = os.path.join(self.attachments_temp_dir, f"{source_name}_{digest}")
+        os.makedirs(folder, exist_ok=True)
+        return folder
+
+    def _save_attachment_data(self, mail_path, filename, data, index):
+        if not isinstance(data, (bytes, bytearray)):
+            return ""
+
+        folder = self._attachment_dir_for_message(mail_path)
+        safe_name = re.sub(r'[\\/:*?"<>|]+', "_", filename or f"attachment_{index}").strip() or f"attachment_{index}"
+        base, ext = os.path.splitext(safe_name)
+        candidate = os.path.join(folder, safe_name)
+        counter = 1
+        while os.path.exists(candidate):
+            candidate = os.path.join(folder, f"{base}_{counter}{ext}")
+            counter += 1
+
+        with open(candidate, "wb") as f:
+            f.write(data)
+        return candidate
+
+    def _open_path_with_default_app(self, path):
+        if not path or not os.path.exists(path):
+            messagebox.showerror(self.t("attachment_open_error_title"), self.t("attachment_missing_msg"))
+            return False
+
+        if os.name == "nt":
+            os.startfile(path)  # type: ignore[attr-defined]
+        elif sys.platform == "darwin":
+            subprocess.Popen(["open", path])
+        else:
+            subprocess.Popen(["xdg-open", path])
+        return True
+
+    def open_current_attachments(self):
+        item = self._get_current_message()
+        if item is None:
+            return
+
+        attachments = item.get("attachments", []) or []
+        extractable = [a for a in attachments if a.get("path") and os.path.exists(a.get("path", ""))]
+        if not extractable:
+            messagebox.showinfo(self.t("attachments"), self.t("attachment_none_extractable"))
+            return
+
+        if len(extractable) == 1:
+            att = extractable[0]
+            ext = (att.get("ext") or os.path.splitext(att.get("path", ""))[1]).lower()
+            if ext in SUSPICIOUS_EXTENSIONS:
+                proceed = messagebox.askyesno(
+                    self.t("attachment_suspicious_title"),
+                    self.t("attachment_suspicious_msg", ext=ext or "-")
+                )
+                if not proceed:
+                    return
+            if self._open_path_with_default_app(att["path"]):
+                self._set_status(self.t("attachment_file_opened", name=att.get("name", "")))
+            return
+
+        folder = os.path.dirname(extractable[0]["path"])
+        if self._open_path_with_default_app(folder):
+            self._set_status(self.t("attachment_folder_opened"))
+
+    def on_close(self):
+        try:
+            shutil.rmtree(self.attachments_temp_dir, ignore_errors=True)
+        finally:
+            self.destroy()
 
     def _analyze_message(self, subject, sender, to_, body, attachments):
         alerts = []

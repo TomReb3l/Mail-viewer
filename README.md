@@ -1,73 +1,61 @@
 # 📧 MailViewer
 
-Απλό, γρήγορο και ελαφρύ εργαλείο για άνοιγμα και προβολή αρχείων email (`.msg`, `.eml`) με ενσωματωμένο basic security check και υποστήριξη Ελληνικών.
-
-Simple, fast and lightweight tool for opening and viewing email files (`.msg`, `.eml`) with basic security checks and Greek language support.
+Professional lightweight viewer for email files (`.msg`, `.eml`) with modern interface, bilingual support and built-in export tools.
 
 ---
 
-## ✨ Features / Χαρακτηριστικά
+## ✨ Features
 
 ### 🇬🇷 Ελληνικά
-- Άνοιγμα αρχείων:
-  - `.msg` (Outlook)
-  - `.eml` (standard email)
+- Άνοιγμα αρχείων `.msg` και `.eml`
 - Άνοιγμα ολόκληρου φακέλου με email αρχεία
-- Καθαρή προβολή:
+- Προβολή:
   - Αποστολέας
   - Παραλήπτης
   - Θέμα
   - Ημερομηνία
   - Περιεχόμενο
-- Basic security check:
-  - Έλεγχος για ύποπτα patterns, links, keywords και συνημμένα
-- Export του επιλεγμένου email σε PDF
-- Εκτύπωση του επιλεγμένου email
-- Διγλωσσικό UI:
-  - Ελληνικά / English
-- Σύγχρονο dark theme με customtkinter
-- Portable executable χωρίς εγκατάσταση
-
----
+- Διαχείριση συνημμένων αρχείων
+- Βασικός έλεγχος ασφαλείας
+- Export σε PDF
+- Εκτύπωση
+- Δίγλωσσο περιβάλλον (Ελληνικά / English)
+- Σύγχρονο dark UI
+- Portable έκδοση χωρίς εγκατάσταση
 
 ### 🇬🇧 English
-- Open email files:
-  - `.msg` (Outlook)
-  - `.eml` (standard email)
-- Open a full folder containing email files
-- Clean display:
-  - Sender
-  - Recipient
-  - Subject
-  - Date
-  - Message body
-- Basic security check:
-  - Detection of suspicious patterns, links, keywords and attachments
-- Export selected email to PDF
-- Print selected email
-- Bilingual UI:
-  - Greek / English
-- Modern dark theme with customtkinter
-- Portable executable without installation
+- Open `.msg` and `.eml` files
+- Open folders containing emails
+- View sender, recipient, subject, date and body
+- Attachment handling
+- Basic security checks
+- Export to PDF
+- Print support
+- Bilingual interface
+- Modern dark UI
+- Portable version
 
 ---
 
-## 🚀 Usage / Χρήση
+## 🚀 Usage
 
-### 🇬🇷
-1. Άνοιξε το πρόγραμμα
-2. Πάτα **Άνοιγμα email αρχείων** ή **Άνοιγμα φακέλου**
-3. Επίλεξε `.msg` ή `.eml`
-4. Δες το περιεχόμενο και το security check
-5. Πάτα **Export PDF** για αποθήκευση σε PDF
-6. Πάτα **Εκτύπωση** για εκτύπωση του επιλεγμένου email
+1. Open the program  
+2. Load one or more email files or a folder  
+3. Browse messages  
+4. Open attachments, export to PDF or print  
 
 ---
 
-### 🇬🇧
-1. Launch the application
-2. Click **Open email files** or **Open folder**
-3. Select `.msg` or `.eml`
-4. View the content and security check
-5. Click **Export PDF** to save as PDF
-6. Click **Print** to print the selected email
+## 🛠 Build EXE (PyInstaller)
+
+```bash
+pip install -r requirements.txt
+pip install pyinstaller
+pyinstaller MailViewer.spec
+```
+
+---
+
+## 📄 License
+
+MIT
